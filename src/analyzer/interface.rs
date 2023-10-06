@@ -1,7 +1,6 @@
-
 use crate::analyzer::error::InterfaceError;
 
-use pcap::{Activated, Active, Capture, Device};
+use pcap::{Activated, Active, Capture, Device, PacketHeader};
 
 #[derive(Debug, Clone)]
 /// A network interface, it encapsulates a pcap's device
@@ -76,7 +75,7 @@ impl Interface {
     /// packet reading with error resilience is needed, consider adding additional error handling.
     pub fn read_packets<T: Activated>(mut capture_handle: Capture<T>) {
         while let Ok(packet) = capture_handle.next_packet() {
-            print!("Packet received: {:?}", packet.header);
+            let PacketHeader { ts, caplen, len } = packet.header;
         }
     }
 }
