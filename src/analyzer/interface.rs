@@ -35,7 +35,7 @@ impl Interface {
     pub fn capture_handle(device: Device, snaplen: i32) -> Result<Capture<Active>, InterfaceError> {
         let mut capture_handle = Capture::from_device(device)
             .map_err(|err| InterfaceError::FailedToCreateCaptureHandle(err))?
-            .promisc(true)
+            .promisc(false)
             .snaplen(snaplen)
             .open()
             .map_err(|err| InterfaceError::FailedToOpenCaptureHandle(err))?;
@@ -58,7 +58,7 @@ impl Interface {
     /// # Examples
     ///
     /// ```rust
-    /// // Assuming necessary imports and setup.
+    /// // Assuming necessary imports and setup.∏
     /// let device = Device::lookup().unwrap();
     /// let capture_handle = Capture::from_device(device).unwrap().open().unwrap();
     /// read_packets(capture_handle);
@@ -75,7 +75,7 @@ impl Interface {
     /// packet reading with error resilience is needed, consider adding additional error handling.
     pub fn read_packets<T: Activated>(mut capture_handle: Capture<T>) {
         while let Ok(packet) = capture_handle.next_packet() {
-            let PacketHeader { ts, caplen, len } = packet.header;
+            println!("PACKER: {:?}", packet.data)
         }
     }
 }

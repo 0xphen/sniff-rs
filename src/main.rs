@@ -6,6 +6,6 @@ fn main() {
     let device = Interface::default_device().unwrap();
     println!("Interfaces: {:?}", device);
 
-    let handle = Interface::capture_handle(device, 5000);
+    let handle = Interface::capture_handle(device, 65535);
     Interface::read_packets(handle.unwrap());
 }
