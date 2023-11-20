@@ -8,7 +8,7 @@ use std::time::SystemTime;
 
 pub fn setup_logger() -> Result<(), InitError> {
     let colors_line = ColoredLevelConfig::new()
-        .info(Color::Green)
+        .info(Color::White)
         .warn(Color::Yellow)
         .error(Color::Red)
         .debug(Color::Blue)

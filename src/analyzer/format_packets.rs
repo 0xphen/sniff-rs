@@ -26,17 +26,18 @@ pub fn format_packets(frame: EthernetFrame) -> String {
     let mut transport_msg = String::new();
     let mut ip_msg = String::new();
 
+    let mut output = format_ether_frame(&header);
+
     if let Some(ipv4) = ipv4_packet {
         transport_msg = format_transports(&ipv4.data);
-        ip_msg = format_ipv4(&ipv4);
+        ip_msg = format_ipv4(ipv4);
     } else if let Some(ipv6) = ipv6_packet {
         transport_msg = format_transports(&ipv6.data);
-        ip_msg = format_ipv6(&ipv6);
+        ip_msg = format_ipv6(ipv6);
     }
 
-    let ether_msg = format_ether_frame(&header);
-
-    format!("{} {} {}", ether_msg, ip_msg, transport_msg)
+    output.push_str(&format!(" | {} | {}", ip_msg, transport_msg));
+    output
 }
 
 /// Parses IPv4 data from the given `LayeredData`
@@ -68,7 +69,7 @@ fn format_transports(layered_data: &LayeredData) -> String {
 /// Formats an Ethernet frame header.
 fn format_ether_frame(header: &EthernetFrameHeader) -> String {
     format!(
-        "|Ethernet: mac_src: {:?} mac_dest: {:?} protocol: {:?}",
+        "Ethernet: Src {:?}, Dest {:?}, Prot {:?}",
         header.mac_destination.to_string(),
         header.mac_source.to_string(),
         header.ether_type,
@@ -77,7 +78,7 @@ fn format_ether_frame(header: &EthernetFrameHeader) -> String {
 
 fn format_ipv4(ipv4_packet: &ipv4::Ipv4Packet) -> String {
     format!(
-        "|IPV4: version: {} src_addr: {} dest_addr: {} protocol: {:?} ttl {}",
+        "IPv4: Ver {}, Src {}, Dest {}, Prot {:?}, TTL {}",
         ipv4_packet.header.version,
         ipv4_packet.header.source_address,
         ipv4_packet.header.destination_address,
@@ -88,7 +89,7 @@ fn format_ipv4(ipv4_packet: &ipv4::Ipv4Packet) -> String {
 
 fn format_ipv6(ipv6_packet: &ipv6::Ipv6Packet) -> String {
     format!(
-        "|IPV6: version: {} src_addr: {} dest_addr: {} next_header: {:?}",
+        "IPV6: Ver: {} Src: {} Dest: {} Next: {:?}",
         ipv6_packet.header.version,
         ipv6_packet.header.source_address,
         ipv6_packet.header.destination_address,
@@ -98,7 +99,7 @@ fn format_ipv6(ipv6_packet: &ipv6::Ipv6Packet) -> String {
 
 fn format_tcp(tcp_segment: &tcp::TcpSegment) -> String {
     format!(
-        "|TCP: src_port: {} dest_port: {} seq_number: {} syn: {} ack: {}",
+        "TCP: Src Port: {} Dest Port: {} Seq: {} Syn: {} Ack: {}",
         tcp_segment.header.source_port,
         tcp_segment.header.destination_port,
         tcp_segment.header.sequence_number,
@@ -109,14 +110,14 @@ fn format_tcp(tcp_segment: &tcp::TcpSegment) -> String {
 
 fn format_udp(udp_datagram: &udp::UdpDatagram) -> String {
     format!(
-        "|UDP: src_port: {} dest_port: {}",
+        "UDP: Src Port {}, Dest Port {}",
         udp_datagram.header.source_port, udp_datagram.header.destination_port
     )
 }
 
 fn format_icmp(icmp_packet: &icmp::IcmpPacket) -> String {
     format!(
-        "|ICMP: type: {} - code: {} - checksum: {}",
+        "ICMP: Type: {} Code: {}  Checksum: {}",
         icmp_packet.header.icmp_type, icmp_packet.header.icmp_code, icmp_packet.header.checksum
     )
 }
