@@ -1,20 +1,32 @@
-use pcap::Error;
+use net_sift::parsers::errors::ParserError;
+use pcap::Error as PcapError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum InterfaceError {
-    #[error("Failed to list interfaces: {0}")]
-    FailedToListInterfaces(#[source] Error),
+pub enum AnalyzerError {
+    #[error("Failed to list interfaces")]
+    DeviceLookupFailed,
 
-    #[error("Failed to list default interface : {0}")]
-    FailedToListDefaultInterface(#[source] Error),
+    #[error("No interface found")]
+    NoInterfaceFound,
 
-    #[error("Failed to list default interface")]
-    DefaultDeviceNotFound,
+    #[error("Failed to capture device handle")]
+    FailedToGetCaptureHandle,
+
+    #[error("Failed to parse packets")]
+    FailedToParsePackets,
 
     #[error("Failed to create capture handle : {0}")]
-    FailedToCreateCaptureHandle(#[source] Error),
+    FailedToCreateCaptureHandle(#[source] PcapError),
 
     #[error("Failed to open capture handle : {0}")]
-    FailedToOpenCaptureHandle(#[source] Error),
+    FailedToOpenCaptureHandle(#[source] PcapError),
+}
+
+impl From<ParserError> for AnalyzerError {
+    fn from(err: ParserError) -> Self {
+        match err {
+            _ => panic!("Other errors"),
+        }
+    }
 }
