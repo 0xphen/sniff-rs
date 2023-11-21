@@ -1,18 +1,17 @@
-use log::{debug, error, info, trace, warn};
+use log::{error, info};
 use net_sift::parsers::{
     definitions::{DeepParser, LayeredData},
     ethernet_frame::EthernetFrame,
 };
-use pcap::{Activated, Active, Capture, Device, Error as PcapError, Packet, Savefile};
+use pcap::{Activated, Capture, Packet, Savefile};
 use std::{
     path::{Path, PathBuf},
-    sync::mpsc::{channel, Sender},
+    sync::mpsc::channel,
     thread,
 };
 
 use super::{
-    definitions::ReadPacketResult, error::AnalyzerError, format_packets::format_packets,
-    pcap_interface::*,
+    definitions::ReadPacketResult, format_packets::format_packets, pcap_interface::PcapInterface,
 };
 
 pub struct Analyzer;
@@ -62,7 +61,7 @@ impl Analyzer {
 
         // Create or open the .pcap file
         let new_path = path.join(format!("{}.pcap", file_name));
-        let mut pcap_file = match capture_handle.savefile(new_path.clone()) {
+        let pcap_file = match capture_handle.savefile(new_path.clone()) {
             Ok(f) => f,
             Err(err) => {
                 error!("{:?}", err.to_string());
@@ -118,7 +117,14 @@ impl Analyzer {
 
     pub fn list_interfaces() {
         match PcapInterface::devices() {
-            Ok(interfaces) => info!("{:?}", interfaces),
+            Ok(interfaces) => {
+                let interfaces = interfaces
+                    .into_iter()
+                    .map(|interface| interface.name)
+                    .collect::<Vec<String>>();
+
+                info!("{:?}", interfaces)
+            }
             Err(e) => error!("Failed to list interfaces {:}", e.to_string()),
         }
     }
@@ -136,6 +142,7 @@ impl Analyzer {
                 if let Ok(LayeredData::EthernetFrameData(frame)) = layered_data {
                     let mut log_msg = format_packets(frame);
                     log_msg.push_str(&format!(" | {} bytes", packets.len()));
+
                     info!("{}: {} | {} bytes\n", mode, log_msg, packets.len());
                 }
             }

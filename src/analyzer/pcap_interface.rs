@@ -1,5 +1,5 @@
 use super::{definitions::ReadPacketResult, error::AnalyzerError};
-use pcap::{Activated, Active, Capture, Device, Error as PcapError, Packet};
+use pcap::{Activated, Active, Capture, Device, Error as PcapError};
 
 use std::sync::mpsc::Sender;
 
