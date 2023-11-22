@@ -1,10 +1,8 @@
 mod analyzer;
 mod cli;
-mod utils;
-
-use utils::logger;
+mod logger;
 
 fn main() {
-    logger::setup_logger().expect("failed to initialize logging.");
+    logger::log::setup().expect("failed to initialize logger.");
     cli::run();
 }

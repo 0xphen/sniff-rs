@@ -10,9 +10,8 @@ use std::{
     thread,
 };
 
-use super::{
-    definitions::ReadPacketResult, format_packets::format_packets, pcap_interface::PcapInterface,
-};
+use super::{definitions::ReadPacketResult, pcap_interface::PcapInterface};
+use crate::logger::format_packets::format_packets;
 
 pub struct Analyzer;
 
