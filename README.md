@@ -1,6 +1,6 @@
 # Wyre
 
-Wyre is a Rust-based packet analyzer that concurrently parses network packets (Ethernet, IPv4, IPv6, TCP, UDP, and ICMP). It supports live packet capture and streaming, as well as saving data to .pcap files for detailed analysis.
+Wyre is a Rust-based network packet analyzer, designed for efficient and concurrent parsing of various protocols including Ethernet, IPv4, IPv6, TCP, UDP, and ICMP. It offers functionalities for both live packet capture and streaming, alongside the capability to save packet data in .pcap format for in-depth analysis, leveraging the [net-sift](https://github.com/0xphen/net-sift) Rust library for protocol parsing."
 
 ## Usage
 ### List default network interface
@@ -59,4 +59,6 @@ This command will stream the packet data flowing through the eth0 interface to y
 - [X] udp
 - [X] icmp
 
+## Planned Enhancements
+- [] Selective Packet Capture
 
