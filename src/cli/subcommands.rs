@@ -15,6 +15,15 @@ pub enum List {
 }
 
 #[derive(Debug, Clone, Parser, Builder)]
+#[clap(about = "Stream packets live")]
+pub struct LiveStreamArgs {
+    /// The interface to stream packets from
+    // #[clap(required = true)]
+    #[clap(long, short)]
+    pub interface: String,
+}
+
+#[derive(Debug, Clone, Parser, Builder)]
 #[clap(about = "Capture network packets and save in a .pcap file")]
 pub struct BasicCaptureArgs {
     /// The directory where the packets will be saved

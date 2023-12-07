@@ -33,6 +33,8 @@ enum Subcommands {
         about = "Capture network packets and save in a .pcap file"
     )]
     BasicCapture(BasicCaptureArgs),
+    #[clap(name = "stream", about = "Captures and live streams network packets")]
+    LiveStream(LiveStreamArgs),
 }
 
 pub fn run() {
@@ -60,6 +62,9 @@ pub fn run() {
                 capture_args.size,
                 &capture_args.interface,
             );
+        }
+        Subcommands::LiveStream(args) => {
+            Analyzer::live_capture(&args.interface);
         }
     }
 }

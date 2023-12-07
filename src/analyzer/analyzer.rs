@@ -32,9 +32,9 @@ impl Analyzer {
     /// The function will terminate early and log an error if it encounters issues
     /// such as an invalid path, failure in opening the capture handle, or errors
     /// in reading packets.
-    pub fn basic_capture(path: &str, file_name: &str, limit: usize, interface_name: &str) {
+    pub fn basic_capture(path: &str, file_name: &str, limit: usize, interface: &str) {
         // Find the device
-        let device = match PcapInterface::find_device(interface_name) {
+        let device = match PcapInterface::find_device(interface) {
             Ok(d) => d,
             Err(err) => {
                 error!("{:?}", err.to_string());
@@ -100,6 +100,45 @@ impl Analyzer {
                         info!("Saved {} packets to file {:?}", total_packets, new_path);
                         break;
                     }
+                }
+                ReadPacketResult::Error(e) => error!("Error: {:?}\n", e),
+            }
+        }
+    }
+
+    pub fn live_capture(interface: &str) {
+        // Find the device
+        let device = match PcapInterface::find_device(interface) {
+            Ok(d) => d,
+            Err(err) => {
+                error!("{:?}", err.to_string());
+                return;
+            }
+        };
+
+        // Open a capture handle
+        let capture_handle = match PcapInterface::capture_handle(device) {
+            Ok(c) => c,
+            Err(err) => {
+                error!("{:?}", err.to_string());
+                return;
+            }
+        };
+
+        Self::stream(capture_handle);
+    }
+
+    fn stream<T: Activated + 'static>(capture_handle: Capture<T>) {
+        let (send_packets, recv_packets) = channel::<ReadPacketResult>();
+
+        thread::spawn(move || {
+            PcapInterface::read_packets(capture_handle, send_packets);
+        });
+
+        while let Ok(message) = recv_packets.recv() {
+            match message {
+                ReadPacketResult::Success(message) => {
+                    Self::parse_packets(&message.1, "LIVE");
                 }
                 ReadPacketResult::Error(e) => error!("Error: {:?}\n", e),
             }
