@@ -68,10 +68,21 @@ impl Analyzer {
             }
         };
 
-        Self::par_basic_capture(capture_handle, pcap_file, new_path, limit);
+        Self::capture_and_process_packets(capture_handle, pcap_file, new_path, limit);
     }
 
-    fn par_basic_capture<T: Activated + 'static>(
+    /// Captures network packets and writes them to a file.
+    ///
+    /// The function captures packets in a separate thread and processes them
+    /// in the main thread, writing each packet to a file and performing custom
+    /// packet parsing. Capturing stops when the limit is reached or an error occurs.
+    ///
+    /// # Arguments
+    /// * `capture_handle` - A handle to the packet capture device/interface.
+    /// * `pcap_file` - File object to save the captured packets.
+    /// * `new_path` - Path to the file where packets will be saved.
+    /// * `limit` - The maximum number of packets to capture and process.
+    fn capture_and_process_packets<T: Activated + 'static>(
         capture_handle: Capture<T>,
         mut pcap_file: Savefile,
         new_path: PathBuf,
@@ -106,6 +117,14 @@ impl Analyzer {
         }
     }
 
+    /// Captures live network packets on the specified interface.
+    /// The function locates the specified network interface and opens a capture handle
+    /// for it. Upon successful acquisition of the capture handle, it initiates the
+    /// streaming of captured packets. If any error occurs during device finding or
+    /// handle creation, the error is logged and the function returns early.
+    ///
+    /// # Arguments
+    /// * `interface` - The name of the network interface to capture packets from.
     pub fn live_capture(interface: &str) {
         // Find the device
         let device = match PcapInterface::find_device(interface) {
@@ -127,6 +146,16 @@ impl Analyzer {
 
         Self::stream(capture_handle);
     }
+
+    /// Streams and processes network packets from a capture handle.
+    ///
+    /// # Arguments
+    /// * `capture_handle` - A handle for capturing packets, compliant with `Activated` and `'static`.
+    ///
+    /// The function sets up a channel for packet communication and spawns a new thread
+    /// to read packets using the provided `capture_handle`. Packets read are sent over the
+    /// channel to the main thread for processing. The main thread continuously receives
+    /// packets and processes them until an error occurs or there are no more packets.
 
     fn stream<T: Activated + 'static>(capture_handle: Capture<T>) {
         let (send_packets, recv_packets) = channel::<ReadPacketResult>();
