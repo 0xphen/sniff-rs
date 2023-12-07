@@ -31,7 +31,9 @@ Capturing 100 packets from the eth0 interface and save them to a capture.pcap in
 ```
 $ wyre capture -d ./ -f capture -i eth0 -s 1000
 ```
+
 ![Basic Capture](docs/capture.png)
+
 This will initiate packet capture on the eth0 interface, save the first 100 packets to a file named capture.pcap, and then terminate.
 
 ### Live Packet Streaming
@@ -44,7 +46,9 @@ Live stream packets on the eth0 interface:
 ```
 $ wyre stream -i eth0
 ```
+
 ![Basic Capture](docs/stream.png)
+
 This command will stream the packet data flowing through the eth0 interface to your terminal in real-time.
 
 ## Supported Protocols
