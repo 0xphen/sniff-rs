@@ -3,19 +3,23 @@ use net_sift::parsers::{
     definitions::{DeepParser, LayeredData},
     ethernet_frame::EthernetFrame,
 };
-use pcap::{Activated, Capture, Packet, Savefile};
+use pcap::{Activated, Active, Capture, Packet, Savefile};
 use std::{
     path::{Path, PathBuf},
     sync::mpsc::channel,
     thread,
 };
 
-use super::{definitions::ReadPacketResult, pcap_interface::PcapInterface};
+use super::{definitions::ReadPacketResult, error::AnalyzerError, pcap_interface::PcapInterface};
 use crate::logger::format_packets::format_packets;
 
 pub struct Analyzer;
 
 impl Analyzer {
+    fn capture_handle(interface: &str) -> Result<Capture<Active>, AnalyzerError> {
+        let device = PcapInterface::find_device(interface)?;
+        Ok(PcapInterface::capture_handle(device)?)
+    }
     /// Captures network packets and saves them to a .pcap file.
     ///
     /// This function captures packets from a specified network interface and
@@ -33,15 +37,6 @@ impl Analyzer {
     /// such as an invalid path, failure in opening the capture handle, or errors
     /// in reading packets.
     pub fn basic_capture(path: &str, file_name: &str, limit: usize, interface: &str) {
-        // Find the device
-        let device = match PcapInterface::find_device(interface) {
-            Ok(d) => d,
-            Err(err) => {
-                error!("{:?}", err.to_string());
-                return;
-            }
-        };
-
         // Check if the path exists and is a directory
         let path = Path::new(path);
         if !path.exists() || !path.is_dir() {
@@ -50,7 +45,7 @@ impl Analyzer {
         }
 
         // Open a capture handle
-        let capture_handle = match PcapInterface::capture_handle(device) {
+        let capture_handle = match Self::capture_handle(interface) {
             Ok(c) => c,
             Err(err) => {
                 error!("{:?}", err.to_string());
@@ -126,17 +121,8 @@ impl Analyzer {
     /// # Arguments
     /// * `interface` - The name of the network interface to capture packets from.
     pub fn live_capture(interface: &str) {
-        // Find the device
-        let device = match PcapInterface::find_device(interface) {
-            Ok(d) => d,
-            Err(err) => {
-                error!("{:?}", err.to_string());
-                return;
-            }
-        };
-
         // Open a capture handle
-        let capture_handle = match PcapInterface::capture_handle(device) {
+        let capture_handle = match Self::capture_handle(interface) {
             Ok(c) => c,
             Err(err) => {
                 error!("{:?}", err.to_string());
