@@ -6,7 +6,7 @@ use subcommands::*;
 
 #[derive(Debug, Parser)]
 #[clap(
-    name = "heimdall",
+    name = "wyre",
     author = "0xphen",
     version
 )]
