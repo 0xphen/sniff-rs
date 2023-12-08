@@ -7,7 +7,7 @@ use subcommands::*;
 #[derive(Debug, Parser)]
 #[clap(
     name = "heimdall",
-    author = "Jonathan Becker <jonathan@jbecker.dev>",
+    author = "0xphen",
     version
 )]
 struct Arguments {
